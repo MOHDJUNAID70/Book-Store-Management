@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Available Books</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://kit.fontawesome.com/0faddc1af8.js" crossorigin="anonymous"></script>
+    <style>
+        body {
+            background: linear-gradient(135deg, #e0eafc 0%, #cfdef3 100%);
+            min-height: 100vh;
+        }
+        .book-card {
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            background: #fff;
+            transition: transform 0.18s, box-shadow 0.18s;
+        }
+        .book-card:hover {
+            transform: translateY(-6px) scale(1.02);
+            box-shadow: 0 10px 32px rgba(0,0,0,0.13);
+        }
+        .book-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #2c3e50;
+        }
+        .book-author {
+            color: #185a9d;
+            font-weight: 500;
+        }
+        .book-price {
+            color: #43cea2;
+            font-weight: 600;
+        }
+        .action-btns .btn {
+            margin-right: 0.5rem;
+        }
+        .add-btn {
+            background: linear-gradient(90deg, #43cea2 0%, #185a9d 100%);
+            color: #fff;
+            border: none;
+        }
+        .add-btn:hover {
+            background: linear-gradient(90deg, #185a9d 0%, #43cea2 100%);
+            color: #fff;
+        }
+        @media (max-width: 767px) {
+            .book-title { font-size: 1.1rem; }
+        }
+    </style>
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-light bg-dark mb-4">
+    <div class="container-fluid">
+        <a class="navbar-brand text-white" href="/">Book Store</a>
+        <button class="btn btn-outline-light ms-auto" type="button" data-bs-toggle="offcanvas" data-bs-target="#sidebarMenu" aria-controls="sidebarMenu">
+            <i class="fa-solid fa-bars"></i>
+        </button>
+    </div>
+</nav>
+<div class="offcanvas offcanvas-end" tabindex="-1" id="sidebarMenu" aria-labelledby="sidebarMenuLabel">
+    <div class="offcanvas-header">
+        <h5 class="offcanvas-title" id="sidebarMenuLabel">Menu</h5>
+        <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    </div>
+    <div class="offcanvas-body">
+        <ul class="list-group list-group-flush">
+            <li class="list-group-item bg-transparent border-0"><a class="nav-link" href="/">Home</a></li>
+            <li class="list-group-item bg-transparent border-0"><a class="nav-link" href="/available_books">Available Books</a></li>
+            <li class="list-group-item bg-transparent border-0" sec:authorize="hasRole('USER')"><a class="nav-link" href="/my_books">My Books</a></li>
+            <li class="list-group-item bg-transparent border-0" sec:authorize="hasRole('ADMIN')"><a class="nav-link" href="/book_register">Add New Book</a></li>
+            <li class="list-group-item bg-transparent border-0" sec:authorize="isAuthenticated()"><a class="nav-link text-danger" th:href="@{/logout}">Logout</a></li>
+            <li class="list-group-item bg-transparent border-0" sec:authorize="isAnonymous()"><a class="nav-link" th:href="@{/login}">Login</a></li>
+            <li class="list-group-item bg-transparent border-0" sec:authorize="isAnonymous()"><a class="nav-link" th:href="@{/register}">Register</a></li>
+        </ul>
+    </div>
+</div>
+<div class="container">
+    <h1 class="text-center mb-5" style="font-weight: 800; color: #2c3e50;">Available Books</h1>
+    <div class="filter-card card shadow-sm mb-4 p-2 border-primary" style="max-width: 900px; margin: 0 auto; border-radius: 14px; background: rgba(255,255,255,0.98);">
+        <form class="row gx-2 gy-2 align-items-center justify-content-center" method="get" th:action="@{/available_books}">
+            <div class="col-md-2">
+                <div class="input-group input-group-sm">
+                    <span class="input-group-text bg-light"><i class="fa-solid fa-book-open"></i></span>
+                    <input type="text" class="form-control filter-input" id="filterName" name="name" placeholder="Book Name" th:value="${param.name}" />
+                </div>
+            </div>
+            <div class="col-md-2">
+                <div class="input-group input-group-sm">
+                    <span class="input-group-text bg-light"><i class="fa-solid fa-user"></i></span>
+                    <input type="text" class="form-control filter-input" id="filterAuthor" name="author" placeholder="Author" th:value="${param.author}" />
+                </div>
+            </div>
+            <div class="col-md-2">
+                <div class="input-group input-group-sm">
+                    <span class="input-group-text bg-light"><i class="fa-solid fa-arrow-down-1-9"></i></span>
+                    <input type="number" class="form-control filter-input" id="filterMinPrice" name="minPrice" placeholder="Min Price" th:value="${param.minPrice}" min="0" />
+                </div>
+            </div>
+            <div class="col-md-2">
+                <div class="input-group input-group-sm">
+                    <span class="input-group-text bg-light"><i class="fa-solid fa-arrow-up-1-9"></i></span>
+                    <input type="number" class="form-control filter-input" id="filterMaxPrice" name="maxPrice" placeholder="Max Price" th:value="${param.maxPrice}" min="0" />
+                </div>
+            </div>
+            <div class="col-md-2">
+                <div class="input-group input-group-sm">
+                    <span class="input-group-text bg-light"><i class="fa-solid fa-layer-group"></i></span>
+                    <select class="form-control filter-input" id="filterCategory" name="category">
+                        <option value="">Category</option>
+                        <option th:each="cat : ${categories}" th:value="${cat}" th:text="${cat}" th:selected="${param.category} == ${cat}"></option>
+                    </select>
+                </div>
+            </div>
+            <div class="col-md-2 d-flex gap-2 align-items-center">
+                <button type="submit" class="btn btn-primary btn-sm w-100"><i class="fa-solid fa-filter"></i></button>
+                <a th:href="@{/available_books}" class="btn btn-outline-secondary btn-sm w-100"><i class="fa-solid fa-rotate-left"></i></a>
+            </div>
+        </form>
+    </div>
+    <div th:if="${param.added}" class="alert alert-success alert-dismissible fade show text-center" id="successAlert" role="alert" style="font-weight:600;">
+        Book added successfully!
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    <div class="d-flex align-items-center mb-3">
+        <span class="badge bg-primary fs-5" style="min-width: 120px;">Total Books: <span th:text="${#lists.size(book)}"></span></span>
+    </div>
+    <div th:each="cat : ${categories}">
+        <h3 class="mt-4 mb-3" th:text="${cat}">Category</h3>
+        <div class="row g-4">
+            <div class="col-md-4" th:each="b : ${book}" th:if="${b.category} == ${cat}">
+                <div class="book-card p-4 h-100">
+                    <div class="row align-items-center">
+                        <!-- Left: Details -->
+                        <div class="col-7">
+                            <div class="book-title mb-2" th:text="${b.name}">Book Name</div>
+                            <div class="book-author mb-1">
+                                <i class="fa-solid fa-user"></i>
+                                <span th:text="'Author: ' + ${b.author}">Author</span>
+                            </div>
+                            <div class="book-price mb-3">
+                                <i class="fa-solid fa-tag"></i>
+                                <span th:text="'₹' + ${b.price}">Price</span>
+                            </div>
+                            <div class="action-btns">
+                                <a class="btn add-btn btn-sm" th:href="@{/mylist/{id}(id=${b.id})}" sec:authorize="hasRole('USER')" onclick="return confirm('Add this book to your My Books list?');"><i class="fa-solid fa-plus"></i> Add To MyBook</a>
+                                <a class="btn btn-outline-primary btn-sm ms-2" sec:authorize="hasRole('ADMIN')" th:href="@{/editBook/{id}(id=${b.id})}"><i class="fa-solid fa-pen-to-square"></i> Edit</a>
+                                <a class="btn btn-outline-danger btn-sm ms-2" sec:authorize="hasRole('ADMIN')" th:href="@{/deleteBook/{id}(id=${b.id})}" onclick="return confirm('Are you sure you want to delete this book?');"><i class="fa-solid fa-trash"></i> Delete</a>
+                            </div>
+                        </div>
+                        <!-- Right: Image -->
+                        <div class="col-5 text-end">
+                            <img th:if="${b.imageName != null}"
+                                 th:src="@{'/uploads/' + ${b.imageName}}"
+                                 alt="Book Image"
+                                 style="max-width: 120px; max-height: 140px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); cursor: pointer;"
+                                 onclick="showBookImageModal(this.src)" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Image Modal -->
+<div class="modal fade" id="bookImageModal" tabindex="-1" aria-labelledby="bookImageModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content bg-transparent border-0">
+      <div class="modal-body text-center p-0">
+        <img id="modalBookImage" src="" alt="Book Image" style="max-width: 90vw; max-height: 80vh; border-radius: 12px; box-shadow: 0 4px 24px rgba(0,0,0,0.25);" />
+      </div>
+    </div>
+  </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    window.addEventListener('DOMContentLoaded', function() {
+        var alert = document.getElementById('successAlert');
+        if(alert) {
+            setTimeout(function() {
+                var bsAlert = new bootstrap.Alert(alert);
+                bsAlert.close();
+            }, 1500);
+        }
+    });
+
+function showBookImageModal(imageSrc) {
+    document.getElementById('modalBookImage').src = imageSrc;
+    var modal = new bootstrap.Modal(document.getElementById('bookImageModal'));
+    modal.show();
+}
+</script>
+</body>
+</html>

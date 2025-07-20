@@ -1,0 +1,126 @@
+:root {
+    --andromeda-primary: #2c3e50;
+    --andromeda-secondary: #34495e;
+    --andromeda-accent: #3498db;
+    --andromeda-text: #ecf0f1;
+    --andromeda-success: #2ecc71;
+    --andromeda-danger: #e74c3c;
+    --andromeda-warning: #f1c40f;
+}
+
+body {
+    background-color: var(--andromeda-primary);
+    color: var(--andromeda-text);
+    font-family: 'Poppins', sans-serif;
+}
+
+.navbar {
+    background-color: var(--andromeda-secondary) !important;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+.navbar-brand, .nav-link {
+    color: var(--andromeda-text) !important;
+    transition: color 0.3s ease;
+}
+
+.nav-link:hover {
+    color: var(--andromeda-accent) !important;
+}
+
+.container {
+    padding: 2rem 0;
+}
+
+.table {
+    background-color: var(--andromeda-secondary);
+    color: var(--andromeda-text);
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.table thead {
+    background-color: var(--andromeda-primary);
+}
+
+.table-striped tbody tr:nth-of-type(odd) {
+    background-color: rgba(52, 152, 219, 0.1);
+}
+
+.btn-primary {
+    background-color: var(--andromeda-accent);
+    border-color: var(--andromeda-accent);
+}
+
+.btn-primary:hover {
+    background-color: #2980b9;
+    border-color: #2980b9;
+}
+
+.btn-outline-success {
+    color: var(--andromeda-success);
+    border-color: var(--andromeda-success);
+}
+
+.btn-outline-success:hover {
+    background-color: var(--andromeda-success);
+    border-color: var(--andromeda-success);
+}
+
+.form-control {
+    background-color: var(--andromeda-secondary);
+    border: 1px solid var(--andromeda-accent);
+    color: var(--andromeda-text);
+}
+
+.form-control:focus {
+    background-color: var(--andromeda-secondary);
+    border-color: var(--andromeda-accent);
+    color: var(--andromeda-text);
+    box-shadow: 0 0 0 0.2rem rgba(52, 152, 219, 0.25);
+}
+
+.form-label {
+    color: var(--andromeda-text);
+}
+
+.card {
+    background-color: var(--andromeda-secondary);
+    border: none;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+.welcome-section {
+    text-align: center;
+    padding: 4rem 0;
+}
+
+.welcome-section h1 {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    color: var(--andromeda-accent);
+}
+
+.welcome-section p {
+    font-size: 1.2rem;
+    color: var(--andromeda-text);
+    opacity: 0.8;
+}
+
+.action-buttons a {
+    margin: 0 0.5rem;
+    transition: transform 0.3s ease;
+}
+
+.action-buttons a:hover {
+    transform: scale(1.1);
+}
+
+.fa-trash {
+    color: var(--andromeda-danger);
+}
+
+.fa-pen-to-square {
+    color: var(--andromeda-warning);
+} 
