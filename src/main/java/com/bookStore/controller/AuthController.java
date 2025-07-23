@@ -57,14 +57,39 @@ public class AuthController {
 
     @PostMapping("/forgot-password")
     public String processForgotPassword(@RequestParam("email") String email, HttpServletRequest request, Model model) {
-        User user = userService.findByEmail(email);
-        if (user == null) {
-            model.addAttribute("error", "No account found with that email.");
+        // Trim and validate email format
+        email = email.trim().toLowerCase();
+        
+        // Basic email format validation
+        if (email.isEmpty() || !email.contains("@") || !email.contains(".")) {
+            model.addAttribute("error", "Please enter a valid email address.");
+            model.addAttribute("email", email);
             return "forgotPassword";
         }
-        String appUrl = request.getScheme() + "://" + request.getServerName() + ":" + request.getServerPort() + contextPath;
-        userService.createPasswordResetTokenForUser(user, appUrl);
-        model.addAttribute("success", "A password reset link has been sent to your email.");
+        
+        // Check if user exists in database
+        User user = userService.findByEmail(email);
+        if (user == null) {
+            // Also check by username in case they entered username instead of email
+            user = userService.findByUsername(email);
+        }
+        
+        if (user == null) {
+            model.addAttribute("error", "No account found with that email address. Please check your email and try again.");
+            model.addAttribute("email", email);
+            return "forgotPassword";
+        }
+        
+        try {
+            String appUrl = request.getScheme() + "://" + request.getServerName() + ":" + request.getServerPort() + contextPath;
+            userService.createPasswordResetTokenForUser(user, appUrl);
+            model.addAttribute("success", "A password reset link has been sent to " + user.getEmail() + ". Please check your email.");
+        } catch (Exception e) {
+            model.addAttribute("error", "Failed to send reset email. Please try again later.");
+            model.addAttribute("email", email);
+            return "forgotPassword";
+        }
+        
         return "forgotPassword";
     }
 

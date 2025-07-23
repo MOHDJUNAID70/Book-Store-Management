@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <title>Payment - Book Store</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://kit.fontawesome.com/0faddc1af8.js" crossorigin="anonymous"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background-attachment: fixed;
+            min-height: 100vh;
+            position: relative;
+        }
+        
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                radial-gradient(circle at 25% 25%, rgba(255,255,255,0.1) 0%, transparent 50%),
+                radial-gradient(circle at 75% 75%, rgba(255,255,255,0.05) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: 1;
+        }
+        
+        /* Navbar Styles */
+        .navbar {
+            background: rgba(255,255,255,0.95) !important;
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255,255,255,0.2);
+            box-shadow: 0 4px 30px rgba(0,0,0,0.1);
+            padding: 1rem 0;
+            position: relative;
+            z-index: 1000;
+        }
+        
+        .navbar-brand {
+            font-weight: 800;
+            font-size: 1.4rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .navbar-nav .nav-link {
+            color: #2c3e50 !important;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            border-radius: 8px;
+            margin: 0 0.2rem;
+        }
+        
+        .navbar-nav .nav-link:hover {
+            color: #667eea !important;
+            background: rgba(102, 126, 234, 0.1);
+        }
+        
+        .navbar-nav .nav-link.active {
+            color: #667eea !important;
+            background: rgba(102, 126, 234, 0.15);
+            font-weight: 600;
+        }
+        
+        .btn-outline-primary {
+            border-color: #667eea;
+            color: #667eea;
+        }
+        
+        .btn-outline-primary:hover {
+            background-color: #667eea;
+            border-color: #667eea;
+        }
+        
+        .offcanvas-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        
+        .offcanvas-title {
+            font-weight: 700;
+        }
+        
+        .offcanvas-body .nav-link {
+            color: #2c3e50;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            border-radius: 8px;
+            margin: 0.2rem 0;
+        }
+        
+        .offcanvas-body .nav-link:hover {
+            color: #667eea;
+            background: rgba(102, 126, 234, 0.1);
+        }
+        
+        .payment-container {
+            position: relative;
+            z-index: 2;
+            margin-top: 6rem;
+            padding: 2rem 0;
+        }
+        
+        .payment-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            padding: 2.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .payment-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        
+        .payment-icon {
+            font-size: 3rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 1rem;
+        }
+        
+        .payment-title {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #2c3e50;
+            margin-bottom: 0.5rem;
+        }
+        
+        .payment-subtitle {
+            color: #6c757d;
+            font-size: 1.1rem;
+        }
+        
+        .order-summary {
+            background: rgba(102, 126, 234, 0.05);
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .order-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid rgba(102, 126, 234, 0.1);
+        }
+        
+        .order-item:last-child {
+            border-bottom: none;
+            font-weight: 600;
+            font-size: 1.1rem;
+            color: #2c3e50;
+        }
+        
+        .book-info {
+            flex: 1;
+        }
+        
+        .book-name {
+            font-weight: 600;
+            color: #2c3e50;
+        }
+        
+        .book-author {
+            font-size: 0.9rem;
+            color: #6c757d;
+        }
+        
+        .book-price {
+            font-weight: 600;
+            color: #667eea;
+        }
+        
+        .payment-methods {
+            margin-bottom: 2rem;
+        }
+        
+        .payment-method {
+            border: 2px solid #e9ecef;
+            border-radius: 12px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .payment-method:hover {
+            border-color: #667eea;
+            background: rgba(102, 126, 234, 0.05);
+        }
+        
+        .payment-method.selected {
+            border-color: #667eea;
+            background: rgba(102, 126, 234, 0.1);
+        }
+        
+        .payment-method-icon {
+            font-size: 1.5rem;
+            margin-right: 1rem;
+            color: #667eea;
+        }
+        
+        .payment-form {
+            display: none;
+            margin-top: 1rem;
+            padding: 1rem;
+            background: rgba(255, 255, 255, 0.5);
+            border-radius: 10px;
+        }
+        
+        .payment-form.active {
+            display: block;
+        }
+        
+        .form-control {
+            border-radius: 10px;
+            border: 2px solid #e9ecef;
+            padding: 0.75rem 1rem;
+            transition: all 0.3s ease;
+        }
+        
+        .form-control:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+        }
+        
+        .btn-payment {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            border-radius: 12px;
+            padding: 1rem 2rem;
+            font-weight: 600;
+            font-size: 1.1rem;
+            color: white;
+            transition: all 0.3s ease;
+            width: 100%;
+        }
+        
+        .btn-payment:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+            color: white;
+        }
+        
+        .btn-back {
+            background: transparent;
+            border: 2px solid #6c757d;
+            border-radius: 12px;
+            padding: 0.75rem 1.5rem;
+            font-weight: 500;
+            color: #6c757d;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+        
+        .btn-back:hover {
+            background: #6c757d;
+            color: white;
+            text-decoration: none;
+        }
+        
+        @media (max-width: 768px) {
+            .payment-card {
+                padding: 1.5rem;
+                margin: 1rem;
+            }
+            
+            .payment-title {
+                font-size: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Modern Navigation -->
+    <nav class="navbar navbar-expand-lg fixed-top">
+        <div class="container">
+            <a class="navbar-brand" href="/">
+                <i class="fas fa-book-reader me-2"></i>Book Store
+            </a>
+            <button class="btn btn-outline-primary d-lg-none" type="button" data-bs-toggle="offcanvas" data-bs-target="#sidebarMenu" aria-controls="sidebarMenu">
+                <i class="fa-solid fa-bars"></i>
+            </button>
+            <div class="navbar-nav ms-auto d-none d-lg-flex">
+                <a class="nav-link px-3" href="/"><i class="fas fa-home me-1"></i>Home</a>
+                <a class="nav-link px-3" href="/available_books"><i class="fas fa-books me-1"></i>Available Books</a>
+                <a class="nav-link px-3" sec:authorize="hasRole('USER')" href="/my_books"><i class="fas fa-bookmark me-1"></i>My Books</a>
+                <a class="nav-link px-3" sec:authorize="hasRole('ADMIN')" href="/book_register"><i class="fas fa-plus-circle me-1"></i>Add Book</a>
+                <a class="nav-link px-3 text-danger" sec:authorize="isAuthenticated()" th:href="@{/logout}"><i class="fas fa-sign-out-alt me-1"></i>Logout</a>
+                <a class="nav-link px-3" sec:authorize="isAnonymous()" th:href="@{/login}"><i class="fas fa-sign-in-alt me-1"></i>Login</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Mobile Sidebar -->
+    <div class="offcanvas offcanvas-end" tabindex="-1" id="sidebarMenu" aria-labelledby="sidebarMenuLabel">
+        <div class="offcanvas-header">
+            <h5 class="offcanvas-title" id="sidebarMenuLabel"><i class="fas fa-book-reader me-2"></i>Menu</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+        </div>
+        <div class="offcanvas-body">
+            <div class="nav flex-column">
+                <a class="nav-link py-3" href="/"><i class="fas fa-home me-2"></i>Home</a>
+                <a class="nav-link py-3" href="/available_books"><i class="fas fa-books me-2"></i>Available Books</a>
+                <a class="nav-link py-3" sec:authorize="hasRole('USER')" href="/my_books"><i class="fas fa-bookmark me-2"></i>My Books</a>
+                <a class="nav-link py-3" sec:authorize="hasRole('ADMIN')" href="/book_register"><i class="fas fa-plus-circle me-2"></i>Add New Book</a>
+                <hr>
+                <a class="nav-link py-3 text-danger" sec:authorize="isAuthenticated()" th:href="@{/logout}"><i class="fas fa-sign-out-alt me-2"></i>Logout</a>
+                <a class="nav-link py-3" sec:authorize="isAnonymous()" th:href="@{/login}"><i class="fas fa-sign-in-alt me-2"></i>Login</a>
+                <a class="nav-link py-3" sec:authorize="isAnonymous()" th:href="@{/register}"><i class="fas fa-user-plus me-2"></i>Register</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="payment-container">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-lg-8">
+                    <div class="payment-card">
+                        <div class="payment-header">
+                            <i class="fas fa-credit-card payment-icon"></i>
+                            <h1 class="payment-title">Complete Your Purchase</h1>
+                            <p class="payment-subtitle">Secure payment for your selected books</p>
+                        </div>
+
+                        <!-- Order Summary -->
+                        <div class="order-summary">
+                            <h4 class="mb-3" style="color: #2c3e50; font-weight: 600;">
+                                <i class="fas fa-receipt me-2"></i>Order Summary
+                            </h4>
+                            <div id="orderItems">
+                                <!-- Order items will be populated by JavaScript -->
+                            </div>
+                        </div>
+
+                        <!-- Payment Methods -->
+                        <div class="payment-methods">
+                            <h4 class="mb-3" style="color: #2c3e50; font-weight: 600;">
+                                <i class="fas fa-credit-card me-2"></i>Payment Method
+                            </h4>
+                            
+                            <div class="payment-method" onclick="selectPaymentMethod('card')">
+                                <div class="d-flex align-items-center">
+                                    <i class="fas fa-credit-card payment-method-icon"></i>
+                                    <div>
+                                        <strong>Credit/Debit Card</strong>
+                                        <div class="text-muted">Visa, MasterCard, American Express</div>
+                                    </div>
+                                </div>
+                                <div class="payment-form" id="cardForm">
+                                    <div class="row">
+                                        <div class="col-12 mb-3">
+                                            <label class="form-label">Card Number</label>
+                                            <input type="text" class="form-control" placeholder="1234 5678 9012 3456" maxlength="19">
+                                        </div>
+                                        <div class="col-md-6 mb-3">
+                                            <label class="form-label">Expiry Date</label>
+                                            <input type="text" class="form-control" placeholder="MM/YY" maxlength="5">
+                                        </div>
+                                        <div class="col-md-6 mb-3">
+                                            <label class="form-label">CVV</label>
+                                            <input type="text" class="form-control" placeholder="123" maxlength="3">
+                                        </div>
+                                        <div class="col-12 mb-3">
+                                            <label class="form-label">Cardholder Name</label>
+                                            <input type="text" class="form-control" placeholder="John Doe">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="payment-method" onclick="selectPaymentMethod('upi')">
+                                <div class="d-flex align-items-center">
+                                    <i class="fas fa-mobile-alt payment-method-icon"></i>
+                                    <div>
+                                        <strong>UPI Payment</strong>
+                                        <div class="text-muted">Google Pay, PhonePe, Paytm</div>
+                                    </div>
+                                </div>
+                                <div class="payment-form" id="upiForm">
+                                    <div class="mb-3">
+                                        <label class="form-label">UPI ID</label>
+                                        <input type="text" class="form-control" placeholder="yourname@upi">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="payment-method" onclick="selectPaymentMethod('netbanking')">
+                                <div class="d-flex align-items-center">
+                                    <i class="fas fa-university payment-method-icon"></i>
+                                    <div>
+                                        <strong>Net Banking</strong>
+                                        <div class="text-muted">All major banks supported</div>
+                                    </div>
+                                </div>
+                                <div class="payment-form" id="netbankingForm">
+                                    <div class="mb-3">
+                                        <label class="form-label">Select Bank</label>
+                                        <select class="form-control">
+                                            <option>Choose your bank</option>
+                                            <option>State Bank of India</option>
+                                            <option>HDFC Bank</option>
+                                            <option>ICICI Bank</option>
+                                            <option>Axis Bank</option>
+                                            <option>Punjab National Bank</option>
+                                            <option>Bank of Baroda</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div class="d-flex gap-3 justify-content-between">
+                            <a href="/my_books" class="btn-back">
+                                <i class="fas fa-arrow-left me-2"></i>Back to My Books
+                            </a>
+                            <button class="btn-payment" onclick="processPayment()">
+                                <i class="fas fa-lock me-2"></i>Pay Securely ₹<span id="totalAmountBtn">0.00</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        let selectedPaymentMethod = null;
+
+        // Load order data from sessionStorage
+        document.addEventListener('DOMContentLoaded', function() {
+            loadOrderData();
+        });
+
+        function loadOrderData() {
+            const selectedBooks = JSON.parse(sessionStorage.getItem('selectedBooks') || '[]');
+            const totalAmount = sessionStorage.getItem('totalAmount') || '0.00';
+            
+            if (selectedBooks.length === 0) {
+                // Redirect back if no books selected
+                window.location.href = '/my_books';
+                return;
+            }
+
+            const orderItemsContainer = document.getElementById('orderItems');
+            let orderHTML = '';
+
+            selectedBooks.forEach(book => {
+                orderHTML += `
+                    <div class="order-item">
+                        <div class="book-info">
+                            <div class="book-name">${book.name}</div>
+                            <div class="book-author">by ${book.author}</div>
+                        </div>
+                        <div class="book-price">₹${book.price.toFixed(2)}</div>
+                    </div>
+                `;
+            });
+
+            orderHTML += `
+                <div class="order-item">
+                    <div class="book-info">
+                        <strong>Total Amount</strong>
+                    </div>
+                    <div class="book-price">₹${totalAmount}</div>
+                </div>
+            `;
+
+            orderItemsContainer.innerHTML = orderHTML;
+            document.getElementById('totalAmountBtn').textContent = totalAmount;
+        }
+
+        function selectPaymentMethod(method) {
+            // Remove previous selections
+            document.querySelectorAll('.payment-method').forEach(el => {
+                el.classList.remove('selected');
+            });
+            document.querySelectorAll('.payment-form').forEach(el => {
+                el.classList.remove('active');
+            });
+
+            // Add selection to clicked method
+            event.currentTarget.classList.add('selected');
+            document.getElementById(method + 'Form').classList.add('active');
+            selectedPaymentMethod = method;
+        }
+
+        function processPayment() {
+            if (!selectedPaymentMethod) {
+                alert('Please select a payment method');
+                return;
+            }
+
+            // Simulate payment processing
+            const paymentBtn = document.querySelector('.btn-payment');
+            paymentBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Processing...';
+            paymentBtn.disabled = true;
+
+            setTimeout(() => {
+                alert('Payment successful! Thank you for your purchase.');
+                // Clear session storage
+                sessionStorage.removeItem('selectedBooks');
+                sessionStorage.removeItem('totalAmount');
+                // Redirect to success page or my books
+                window.location.href = '/my_books';
+            }, 2000);
+        }
+
+        // Format card number input
+        document.addEventListener('input', function(e) {
+            if (e.target.placeholder === '1234 5678 9012 3456') {
+                let value = e.target.value.replace(/\s/g, '').replace(/[^0-9]/gi, '');
+                let formattedValue = value.match(/.{1,4}/g)?.join(' ') || value;
+                e.target.value = formattedValue;
+            }
+        });
+
+        // Format expiry date input
+        document.addEventListener('input', function(e) {
+            if (e.target.placeholder === 'MM/YY') {
+                let value = e.target.value.replace(/\D/g, '');
+                if (value.length >= 2) {
+                    value = value.substring(0, 2) + '/' + value.substring(2, 4);
+                }
+                e.target.value = value;
+            }
+        });
+    </script>
+</body>
+</html>

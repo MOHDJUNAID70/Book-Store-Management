@@ -9,6 +9,8 @@ import java.util.*;
 import com.bookStore.entity.*;
 import com.bookStore.service.BookService;
 import com.bookStore.service.MyBookListService;
+import com.bookStore.service.UserService;
+import com.bookStore.entity.User;
 
 import org.springframework.web.bind.annotation.RequestMapping;
 // import org.springframework.web.bind.annotation.RequestMethod;
@@ -17,6 +19,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.multipart.MultipartFile;
 import java.io.File;
 import java.io.IOException;
+import java.security.Principal;
 
 
 @Controller
@@ -27,7 +30,10 @@ public class bookController {
     
     @Autowired
     private MyBookListService myBookservice;
-
+    
+    @Autowired
+    private UserService userService;
+    
     @GetMapping("/")
     public String home(){
         return "home";
@@ -76,39 +82,17 @@ public class bookController {
         return mav;
     }
     @GetMapping("/my_books")
-    public ModelAndView getMyBooks(){
-        List<MyBookList> list = myBookservice.getAllMyBooks();
+    public ModelAndView getMyBooks(Principal principal){
+        User currentUser = userService.findByUsernameOrEmail(principal.getName());
+        List<MyBookList> list = myBookservice.getAllMyBooks(currentUser);
         return new ModelAndView("MyBook", "book", list);
     }
-
-    @PostMapping("/save")
-    @PreAuthorize("hasRole('ADMIN')")
-    public String addBook(@ModelAttribute Book book, @RequestParam("imageFile") MultipartFile imageFile) {
-        System.out.println("Image file received: " + (imageFile != null) + ", name: " + (imageFile != null ? imageFile.getOriginalFilename() : "null"));
-        if (!imageFile.isEmpty()) {
-            String fileName = imageFile.getOriginalFilename();
-            String uploadDir = System.getProperty("user.dir") + "/uploads/";
-            try {
-                File uploadPath = new File(uploadDir);
-                if (!uploadPath.exists()) uploadPath.mkdirs();
-                imageFile.transferTo(new File(uploadDir + fileName));
-                book.setImageName(fileName);
-                System.out.println("Set imageName: " + fileName);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        } else {
-            System.out.println("No image file uploaded.");
-        }
-        service.save(book);
-        System.out.println("Saved book: " + book);
-        return "redirect:/book_register";
-    }
-
+    
     @RequestMapping("/mylist/{id}")
-    public String getMyList(@PathVariable("id") int id){
+    public String getMyList(@PathVariable("id") int id, Principal principal){
+        User currentUser = userService.findByUsernameOrEmail(principal.getName());
         Book b = service.getBookById(id);
-        MyBookList obj = new MyBookList(b.getId(), b.getName(), b.getAuthor(), b.getPrice());
+        MyBookList obj = new MyBookList(b.getId(), b.getName(), b.getAuthor(), b.getPrice(), b.getImageName(), currentUser);
         myBookservice.saveMyBooks(obj);
         return "redirect:/available_books?added=success";
     }
@@ -128,7 +112,7 @@ public class bookController {
         // Redirect to available_books with category filter
         return "redirect:/available_books?category=" + b.getCategory();
     }
-
+    
     @GetMapping("/deleteBook/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     public String deleteBook(@PathVariable("id") int id) {

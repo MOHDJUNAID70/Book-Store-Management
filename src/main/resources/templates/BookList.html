@@ -3,164 +3,598 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Available Books</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <title>Available Books - Professional Bookstore</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <script src="https://kit.fontawesome.com/0faddc1af8.js" crossorigin="anonymous"></script>
     <style>
+        :root {
+            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --secondary-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            --success-gradient: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            --dark-gradient: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+            --light-bg: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+            --card-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            --card-shadow-hover: 0 20px 60px rgba(0,0,0,0.15);
+        }
+        
+        * {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+        }
+        
         body {
-            background: linear-gradient(135deg, #e0eafc 0%, #cfdef3 100%);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background-attachment: fixed;
             min-height: 100vh;
+            position: relative;
         }
-        .book-card {
-            border-radius: 16px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="1" fill="%23ffffff" opacity="0.03"/><circle cx="75" cy="75" r="1" fill="%23ffffff" opacity="0.03"/><circle cx="50" cy="10" r="0.5" fill="%23ffffff" opacity="0.02"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>') repeat;
+            pointer-events: none;
+            z-index: 1;
+        }
+        
+        .main-content {
+            position: relative;
+            z-index: 2;
+        }
+        
+        .navbar {
+            background: rgba(255,255,255,0.95) !important;
+            backdrop-filter: blur(20px);
+            border-bottom: 5px solid rgba(255,255,255,0.2);
+            box-shadow: 0 4px 30px rgba(0,0,0,0.1);
+        }
+        
+        .navbar-brand {
+            font-weight: 800;
+            font-size: 1.5rem;
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .page-header {
+            text-align: center;
+            margin: 7rem 0 3rem 0;
+            position: relative;
+        }
+        
+        .page-title {
+            font-size: 3.2rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            margin-bottom: 1rem;
+        }
+        
+        .page-subtitle {
+            font-size: 1.2rem;
+            color: rgba(255,255,255,0.8);
+            font-weight: 400;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        .filter-section {
+            background: rgba(255,255,255,0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 24px;
+            padding: 2rem;
+            margin-bottom: 3rem;
+            box-shadow: var(--card-shadow);
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+        
+        .filter-input {
+            border-radius: 12px;
+            border: 2px solid #e9ecef;
+            padding: 0.75rem 1rem;
+            transition: all 0.3s ease;
+            background: rgba(255,255,255,0.8);
+        }
+        
+        .filter-input:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
             background: #fff;
-            transition: transform 0.18s, box-shadow 0.18s;
         }
+        
+        .btn-filter {
+            background: var(--primary-gradient);
+            border: none;
+            border-radius: 12px;
+            padding: 0.75rem 1.5rem;
+            font-weight: 600;
+            color: white;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-filter:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+            color: white;
+        }
+        
+        .btn-reset {
+            background: rgba(108, 117, 125, 0.1);
+            border: 2px solid #6c757d;
+            border-radius: 12px;
+            padding: 0.75rem 1.5rem;
+            font-weight: 600;
+            color: #6c757d;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-reset:hover {
+            background: #6c757d;
+            color: white;
+            transform: translateY(-2px);
+        }
+        
+        .stats-card {
+            background: rgba(255,255,255,0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            box-shadow: var(--card-shadow);
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+        
+        .category-section {
+            margin-bottom: 4rem;
+        }
+        
+        .category-title {
+            font-size: 2rem;
+            font-weight: 400;
+            color: white;
+            margin-bottom: 2rem;
+            position: relative;
+            display: inline-block;
+        }
+        
+        .category-title::after {
+            content: '';
+            position: absolute;
+            bottom: -8px;
+            left: 0;
+            width: 60px;
+            height: 4px;
+            background: var(--success-gradient);
+            border-radius: 2px;
+        }
+        
+        .book-card {
+            background: rgba(255,255,255,0.98);
+            backdrop-filter: blur(20px);
+            border-radius: 24px;
+            padding: 2rem;
+            height: 100%;
+            border: 1px solid rgba(255,255,255,0.2);
+            box-shadow: var(--card-shadow);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .book-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+            transition: left 0.6s;
+        }
+        
+        .book-card:hover::before {
+            left: 100%;
+        }
+        
         .book-card:hover {
-            transform: translateY(-6px) scale(1.02);
-            box-shadow: 0 10px 32px rgba(0,0,0,0.13);
+            transform: translateY(-12px) scale(1.02);
+            box-shadow: var(--card-shadow-hover);
         }
+        
+        .book-image {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            border-radius: 16px;
+            margin-bottom: 1.5rem;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+        
+        .book-image:hover {
+            transform: scale(1.05);
+            box-shadow: 0 12px 35px rgba(0,0,0,0.2);
+        }
+        
         .book-title {
-            font-size: 1.3rem;
+            font-size: 1.4rem;
             font-weight: 700;
             color: #2c3e50;
+            margin-bottom: 0.75rem;
+            line-height: 1.3;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
         }
+        
         .book-author {
-            color: #185a9d;
+            color: #667eea;
             font-weight: 500;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
         }
+        
         .book-price {
-            color: #43cea2;
-            font-weight: 600;
+            font-size: 1.1rem;
+            font-weight: 700;
+            background: var(--success-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 1.2rem;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
         }
-        .action-btns .btn {
-            margin-right: 0.5rem;
+        
+        .action-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
         }
-        .add-btn {
-            background: linear-gradient(90deg, #43cea2 0%, #185a9d 100%);
-            color: #fff;
+        
+        .btn-add {
+            background: var(--success-gradient);
             border: none;
+            border-radius: 10px;
+            padding: 0.6rem 1.2rem;
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: white;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            text-align: center;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.4rem;
         }
-        .add-btn:hover {
-            background: linear-gradient(90deg, #185a9d 0%, #43cea2 100%);
-            color: #fff;
+        
+        .btn-add:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(79, 172, 254, 0.3);
+            color: white;
+            text-decoration: none;
         }
-        @media (max-width: 767px) {
-            .book-title { font-size: 1.1rem; }
+        
+        .btn-edit {
+            background: rgba(255, 193, 7, 0.1);
+            border: 2px solid #ffc107;
+            border-radius: 8px;
+            padding: 0.4rem 0.8rem;
+            font-weight: 600;
+            font-size: 0.85rem;
+            color: #ffc107;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            text-align: center;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.3rem;
+        }
+        
+        .btn-edit:hover {
+            background: #ffc107;
+            color: white;
+            transform: translateY(-2px);
+            text-decoration: none;
+        }
+        
+        .btn-delete {
+            background: rgba(220, 53, 69, 0.1);
+            border: 2px solid #dc3545;
+            border-radius: 8px;
+            padding: 0.4rem 0.8rem;
+            font-weight: 600;
+            font-size: 0.85rem;
+            color: #dc3545;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            text-align: center;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.3rem;
+        }
+        
+        .btn-delete:hover {
+            background: #dc3545;
+            color: white;
+            transform: translateY(-2px);
+            text-decoration: none;
+        }
+        
+        .admin-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        .success-alert {
+            background: var(--success-gradient);
+            border: none;
+            border-radius: 16px;
+            color: white;
+            font-weight: 600;
+            box-shadow: var(--card-shadow);
+        }
+        
+        .modal-content {
+            border-radius: 24px;
+            border: none;
+            overflow: hidden;
+        }
+        
+        .modal-image {
+            max-width: 90vw;
+            max-height: 80vh;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        
+        .loading-spinner {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 9999;
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.6s ease-in-out;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .slide-up {
+            animation: slideUp 0.8s ease-out;
+        }
+        
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(40px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @media (max-width: 768px) {
+            .page-title { font-size: 2.2rem; }
+            .page-header { margin: 5rem 0 2rem 0; }
+            .filter-section { padding: 1.5rem; }
+            .book-card { padding: 1.2rem; max-width: 280px; }
+            .book-image { height: 140px; }
+            .book-title { font-size: 1rem; }
+            .book-author { font-size: 0.85rem; }
+            .book-price { font-size: 1rem; }
+            .action-buttons { flex-direction: column; }
+            .admin-actions { flex-direction: column; }
+        }
+        
+        @media (max-width: 576px) {
+            .page-title { font-size: 1.8rem; }
+            .page-header { margin: 4rem 0 2rem 0; }
+            .category-title { font-size: 1.5rem; }
+            .filter-section { margin: 1rem; padding: 1rem; }
+            .book-card { padding: 1rem; max-width: 100%; }
+            .book-image { height: 120px; }
+            .book-title { font-size: 0.95rem; }
+            .book-author { font-size: 0.8rem; }
+            .book-price { font-size: 0.95rem; }
         }
     </style>
 </head>
 <body>
-<nav class="navbar navbar-expand-lg navbar-light bg-dark mb-4">
-    <div class="container-fluid">
-        <a class="navbar-brand text-white" href="/">Book Store</a>
-        <button class="btn btn-outline-light ms-auto" type="button" data-bs-toggle="offcanvas" data-bs-target="#sidebarMenu" aria-controls="sidebarMenu">
-            <i class="fa-solid fa-bars"></i>
-        </button>
+<div class="main-content">
+    <!-- Modern Navigation -->
+    <nav class="navbar navbar-expand-lg fixed-top">
+        <div class="container">
+            <a class="navbar-brand" href="/">
+                <i class="fas fa-book-reader me-2"></i>Book Store
+            </a>
+            <button class="btn btn-outline-primary d-lg-none" type="button" data-bs-toggle="offcanvas" data-bs-target="#sidebarMenu" aria-controls="sidebarMenu">
+                <i class="fa-solid fa-bars"></i>
+            </button>
+            <div class="navbar-nav ms-auto d-none d-lg-flex">
+                <a class="nav-link px-3" href="/"><i class="fas fa-home me-1"></i>Home</a>
+                <a class="nav-link px-3 active" href="/available_books"><i class="fas fa-books me-1"></i>Available Books</a>
+                <a class="nav-link px-3" sec:authorize="hasRole('USER')" href="/my_books"><i class="fas fa-bookmark me-1"></i>My Books</a>
+                <a class="nav-link px-3" sec:authorize="hasRole('ADMIN')" href="/book_register"><i class="fas fa-plus-circle me-1"></i>Add Book</a>
+                <a class="nav-link px-3 text-danger" sec:authorize="isAuthenticated()" th:href="@{/logout}"><i class="fas fa-sign-out-alt me-1"></i>Logout</a>
+                <a class="nav-link px-3" sec:authorize="isAnonymous()" th:href="@{/login}"><i class="fas fa-sign-in-alt me-1"></i>Login</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Mobile Sidebar -->
+    <div class="offcanvas offcanvas-end" tabindex="-1" id="sidebarMenu" aria-labelledby="sidebarMenuLabel">
+        <div class="offcanvas-header">
+            <h5 class="offcanvas-title" id="sidebarMenuLabel"><i class="fas fa-book-reader me-2"></i>Menu</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+        </div>
+        <div class="offcanvas-body">
+            <div class="nav flex-column">
+                <a class="nav-link py-3" href="/"><i class="fas fa-home me-2"></i>Home</a>
+                <a class="nav-link py-3 active" href="/available_books"><i class="fas fa-books me-2"></i>Available Books</a>
+                <a class="nav-link py-3" sec:authorize="hasRole('USER')" href="/my_books"><i class="fas fa-bookmark me-2"></i>My Books</a>
+                <a class="nav-link py-3" sec:authorize="hasRole('ADMIN')" href="/book_register"><i class="fas fa-plus-circle me-2"></i>Add New Book</a>
+                <hr>
+                <a class="nav-link py-3 text-danger" sec:authorize="isAuthenticated()" th:href="@{/logout}"><i class="fas fa-sign-out-alt me-2"></i>Logout</a>
+                <a class="nav-link py-3" sec:authorize="isAnonymous()" th:href="@{/login}"><i class="fas fa-sign-in-alt me-2"></i>Login</a>
+                <a class="nav-link py-3" sec:authorize="isAnonymous()" th:href="@{/register}"><i class="fas fa-user-plus me-2"></i>Register</a>
+            </div>
+        </div>
     </div>
-</nav>
-<div class="offcanvas offcanvas-end" tabindex="-1" id="sidebarMenu" aria-labelledby="sidebarMenuLabel">
-    <div class="offcanvas-header">
-        <h5 class="offcanvas-title" id="sidebarMenuLabel">Menu</h5>
-        <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+
+    <!-- Page Header -->
+    <div class="page-header">
+        <div class="container">
+            <h1 class="page-title fade-in">Discover Amazing Books</h1>
+            <p class="page-subtitle fade-in">Explore our curated collection of books across various genres and find your next great read</p>
+        </div>
     </div>
-    <div class="offcanvas-body">
-        <ul class="list-group list-group-flush">
-            <li class="list-group-item bg-transparent border-0"><a class="nav-link" href="/">Home</a></li>
-            <li class="list-group-item bg-transparent border-0"><a class="nav-link" href="/available_books">Available Books</a></li>
-            <li class="list-group-item bg-transparent border-0" sec:authorize="hasRole('USER')"><a class="nav-link" href="/my_books">My Books</a></li>
-            <li class="list-group-item bg-transparent border-0" sec:authorize="hasRole('ADMIN')"><a class="nav-link" href="/book_register">Add New Book</a></li>
-            <li class="list-group-item bg-transparent border-0" sec:authorize="isAuthenticated()"><a class="nav-link text-danger" th:href="@{/logout}">Logout</a></li>
-            <li class="list-group-item bg-transparent border-0" sec:authorize="isAnonymous()"><a class="nav-link" th:href="@{/login}">Login</a></li>
-            <li class="list-group-item bg-transparent border-0" sec:authorize="isAnonymous()"><a class="nav-link" th:href="@{/register}">Register</a></li>
-        </ul>
-    </div>
-</div>
-<div class="container">
-    <h1 class="text-center mb-5" style="font-weight: 800; color: #2c3e50;">Available Books</h1>
-    <div class="filter-card card shadow-sm mb-4 p-2 border-primary" style="max-width: 900px; margin: 0 auto; border-radius: 14px; background: rgba(255,255,255,0.98);">
-        <form class="row gx-2 gy-2 align-items-center justify-content-center" method="get" th:action="@{/available_books}">
-            <div class="col-md-2">
-                <div class="input-group input-group-sm">
-                    <span class="input-group-text bg-light"><i class="fa-solid fa-book-open"></i></span>
-                    <input type="text" class="form-control filter-input" id="filterName" name="name" placeholder="Book Name" th:value="${param.name}" />
+
+    <!-- Main Content -->
+    <div class="container">
+        <!-- Advanced Filter Section -->
+        <div class="filter-section slide-up">
+            <h4 class="mb-4 text-center" style="color: #2c3e50; font-weight: 600;">
+                <i class="fas fa-search me-2"></i>Find Your Perfect Book
+            </h4>
+            <form method="get" th:action="@{/available_books}">
+                <div class="row g-3">
+                    <div class="col-md-6 col-lg-3">
+                        <label class="form-label fw-semibold"><i class="fas fa-book me-1"></i>Book Name</label>
+                        <input type="text" class="form-control filter-input" name="name" placeholder="Search by title..." th:value="${param.name}" />
+                    </div>
+                    <div class="col-md-6 col-lg-3">
+                        <label class="form-label fw-semibold"><i class="fas fa-user me-1"></i>Author</label>
+                        <input type="text" class="form-control filter-input" name="author" placeholder="Search by author..." th:value="${param.author}" />
+                    </div>
+                    <div class="col-md-6 col-lg-2">
+                        <label class="form-label fw-semibold"><i class="fas fa-rupee-sign me-1"></i>Min Price</label>
+                        <input type="number" class="form-control filter-input" name="minPrice" placeholder="₹0" th:value="${param.minPrice}" min="0" />
+                    </div>
+                    <div class="col-md-6 col-lg-2">
+                        <label class="form-label fw-semibold"><i class="fas fa-rupee-sign me-1"></i>Max Price</label>
+                        <input type="number" class="form-control filter-input" name="maxPrice" placeholder="₹999" th:value="${param.maxPrice}" min="0" />
+                    </div>
+                    <div class="col-md-6 col-lg-2">
+                        <label class="form-label fw-semibold"><i class="fas fa-layer-group me-1"></i>Category</label>
+                        <select class="form-control filter-input" name="category">
+                            <option value="">All Categories</option>
+                            <option th:each="cat : ${categories}" th:value="${cat}" th:text="${cat}" th:selected="${param.category} == ${cat}"></option>
+                        </select>
+                    </div>
+                </div>
+                <div class="row mt-4">
+                    <div class="col-12 text-center">
+                        <button type="submit" class="btn btn-filter me-3">
+                            <i class="fas fa-search me-2"></i>Search Books
+                        </button>
+                        <a th:href="@{/available_books}" class="btn btn-reset">
+                            <i class="fas fa-undo me-2"></i>Clear Filters
+                        </a>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <!-- Success Alert -->
+        <div th:if="${param.added}" class="alert success-alert alert-dismissible fade show text-center slide-up" id="successAlert" role="alert">
+            <i class="fas fa-check-circle me-2"></i>Book added to your collection successfully!
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+
+        <!-- Stats Card -->
+        <div class="stats-card text-center slide-up">
+            <div class="row">
+                <div class="col-md-4">
+                    <h3 class="mb-1" style="color: #667eea; font-weight: 700;" th:text="${#lists.size(book)}">0</h3>
+                    <p class="mb-0 text-muted">Total Books Available</p>
+                </div>
+                <div class="col-md-4">
+                    <h3 class="mb-1" style="color: #f093fb; font-weight: 700;" th:text="${#lists.size(categories)}">0</h3>
+                    <p class="mb-0 text-muted">Categories</p>
+                </div>
+                <div class="col-md-4">
+                    <h3 class="mb-1" style="color: #4facfe; font-weight: 700;">∞</h3>
+                    <p class="mb-0 text-muted">Reading Possibilities</p>
                 </div>
             </div>
-            <div class="col-md-2">
-                <div class="input-group input-group-sm">
-                    <span class="input-group-text bg-light"><i class="fa-solid fa-user"></i></span>
-                    <input type="text" class="form-control filter-input" id="filterAuthor" name="author" placeholder="Author" th:value="${param.author}" />
-                </div>
-            </div>
-            <div class="col-md-2">
-                <div class="input-group input-group-sm">
-                    <span class="input-group-text bg-light"><i class="fa-solid fa-arrow-down-1-9"></i></span>
-                    <input type="number" class="form-control filter-input" id="filterMinPrice" name="minPrice" placeholder="Min Price" th:value="${param.minPrice}" min="0" />
-                </div>
-            </div>
-            <div class="col-md-2">
-                <div class="input-group input-group-sm">
-                    <span class="input-group-text bg-light"><i class="fa-solid fa-arrow-up-1-9"></i></span>
-                    <input type="number" class="form-control filter-input" id="filterMaxPrice" name="maxPrice" placeholder="Max Price" th:value="${param.maxPrice}" min="0" />
-                </div>
-            </div>
-            <div class="col-md-2">
-                <div class="input-group input-group-sm">
-                    <span class="input-group-text bg-light"><i class="fa-solid fa-layer-group"></i></span>
-                    <select class="form-control filter-input" id="filterCategory" name="category">
-                        <option value="">Category</option>
-                        <option th:each="cat : ${categories}" th:value="${cat}" th:text="${cat}" th:selected="${param.category} == ${cat}"></option>
-                    </select>
-                </div>
-            </div>
-            <div class="col-md-2 d-flex gap-2 align-items-center">
-                <button type="submit" class="btn btn-primary btn-sm w-100"><i class="fa-solid fa-filter"></i></button>
-                <a th:href="@{/available_books}" class="btn btn-outline-secondary btn-sm w-100"><i class="fa-solid fa-rotate-left"></i></a>
-            </div>
-        </form>
-    </div>
-    <div th:if="${param.added}" class="alert alert-success alert-dismissible fade show text-center" id="successAlert" role="alert" style="font-weight:600;">
-        Book added successfully!
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-    </div>
-    <div class="d-flex align-items-center mb-3">
-        <span class="badge bg-primary fs-5" style="min-width: 120px;">Total Books: <span th:text="${#lists.size(book)}"></span></span>
-    </div>
-    <div th:each="cat : ${categories}">
-        <h3 class="mt-4 mb-3" th:text="${cat}">Category</h3>
-        <div class="row g-4">
-            <div class="col-md-4" th:each="b : ${book}" th:if="${b.category} == ${cat}">
-                <div class="book-card p-4 h-100">
-                    <div class="row align-items-center">
-                        <!-- Left: Details -->
-                        <div class="col-7">
-                            <div class="book-title mb-2" th:text="${b.name}">Book Name</div>
-                            <div class="book-author mb-1">
-                                <i class="fa-solid fa-user"></i>
-                                <span th:text="'Author: ' + ${b.author}">Author</span>
-                            </div>
-                            <div class="book-price mb-3">
-                                <i class="fa-solid fa-tag"></i>
-                                <span th:text="'₹' + ${b.price}">Price</span>
-                            </div>
-                            <div class="action-btns">
-                                <a class="btn add-btn btn-sm" th:href="@{/mylist/{id}(id=${b.id})}" sec:authorize="hasRole('USER')" onclick="return confirm('Add this book to your My Books list?');"><i class="fa-solid fa-plus"></i> Add To MyBook</a>
-                                <a class="btn btn-outline-primary btn-sm ms-2" sec:authorize="hasRole('ADMIN')" th:href="@{/editBook/{id}(id=${b.id})}"><i class="fa-solid fa-pen-to-square"></i> Edit</a>
-                                <a class="btn btn-outline-danger btn-sm ms-2" sec:authorize="hasRole('ADMIN')" th:href="@{/deleteBook/{id}(id=${b.id})}" onclick="return confirm('Are you sure you want to delete this book?');"><i class="fa-solid fa-trash"></i> Delete</a>
-                            </div>
+        </div>
+
+        <!-- Books by Category -->
+        <div th:each="cat : ${categories}" class="category-section slide-up">
+            <h2 class="category-title" th:text="${cat}">Category</h2>
+            <div class="row g-4">
+                <div class="col-lg-4 col-md-6" th:each="b : ${book}" th:if="${b.category} == ${cat}">
+                    <div class="book-card fade-in">
+                        <!-- Book Image -->
+                        <img th:if="${b.imageName != null}"
+                             th:src="@{'/uploads/' + ${b.imageName}}"
+                             alt="Book Cover"
+                             class="book-image"
+                             onclick="showBookImageModal(this.src)" />
+                        <div th:unless="${b.imageName != null}" class="book-image d-flex align-items-center justify-content-center" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+                            <i class="fas fa-book fa-3x opacity-50"></i>
                         </div>
-                        <!-- Right: Image -->
-                        <div class="col-5 text-end">
-                            <img th:if="${b.imageName != null}"
-                                 th:src="@{'/uploads/' + ${b.imageName}}"
-                                 alt="Book Image"
-                                 style="max-width: 120px; max-height: 140px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); cursor: pointer;"
-                                 onclick="showBookImageModal(this.src)" />
+                        
+                        <!-- Book Details -->
+                        <div class="book-title" th:text="${b.name}">Book Title</div>
+                        <div class="book-author">
+                            <i class="fas fa-user-edit"></i>
+                            <span th:text="${b.author}">Author Name</span>
+                        </div>
+                        <div class="book-price">
+                            <i class="fas fa-tag"></i>
+                            <span th:text="'₹' + ${b.price}">Price</span>
+                        </div>
+                        
+                        <!-- Action Buttons -->
+                        <div class="action-buttons">
+                            <a class="btn-add" th:href="@{/mylist/{id}(id=${b.id})}" sec:authorize="hasRole('USER')" onclick="return confirm('Add this book to your My Books collection?');">
+                                <i class="fas fa-heart"></i>Add to My Books
+                            </a>
+                            <div class="admin-actions" sec:authorize="hasRole('ADMIN')">
+                                <a class="btn-edit" th:href="@{/editBook/{id}(id=${b.id})}">
+                                    <i class="fas fa-edit"></i>Edit
+                                </a>
+                                <a class="btn-delete" th:href="@{/deleteBook/{id}(id=${b.id})}" onclick="return confirm('Are you sure you want to delete this book?');">
+                                    <i class="fas fa-trash-alt"></i>Delete
+                                </a>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
+        </div>
+
+        <!-- Empty State -->
+        <div th:if="${#lists.isEmpty(book)}" class="text-center py-5">
+            <div class="mb-4">
+                <i class="fas fa-book-open fa-5x" style="color: rgba(255,255,255,0.3);"></i>
+            </div>
+            <h3 style="color: white; font-weight: 600;">No Books Found</h3>
+            <p style="color: rgba(255,255,255,0.7);">Try adjusting your search filters or browse all categories.</p>
+            <a th:href="@{/available_books}" class="btn btn-filter mt-3">
+                <i class="fas fa-refresh me-2"></i>View All Books
+            </a>
         </div>
     </div>
 </div>
@@ -182,7 +616,7 @@
             setTimeout(function() {
                 var bsAlert = new bootstrap.Alert(alert);
                 bsAlert.close();
-            }, 1500);
+            }, 2500);
         }
     });
 

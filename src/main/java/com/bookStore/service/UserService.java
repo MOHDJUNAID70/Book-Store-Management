@@ -5,6 +5,7 @@ import com.bookStore.entity.User;
 import com.bookStore.repository.PasswordResetTokenRepository;
 import com.bookStore.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -19,6 +20,7 @@ public class UserService {
     private UserRepository userRepository;
 
     @Autowired
+    @Lazy
     private BCryptPasswordEncoder passwordEncoder;
 
     @Autowired
@@ -32,12 +34,34 @@ public class UserService {
         User user = new User(email, username, encodedPassword, role);
         return userRepository.save(user);
     }
+    
+    public User registerOAuth2User(String email, String name, String role) {
+        // For OAuth2 users, use email as username and set a dummy password
+        String dummyPassword = passwordEncoder.encode("OAUTH2_USER");
+        User user = new User(email, email, dummyPassword, role);
+        return userRepository.save(user);
+    }
 
     public User findByUsername(String username) {
         return userRepository.findByUsername(username);
     }
+    
     public User findByEmail(String email){
+        if (email == null || email.trim().isEmpty()) {
+            return null;
+        }
+        // Normalize email to lowercase for consistent lookup
+        email = email.trim().toLowerCase();
         return userRepository.findByEmail(email);
+    }
+    
+    // Method to find user by username or email (for OAuth2 compatibility)
+    public User findByUsernameOrEmail(String identifier) {
+        User user = userRepository.findByUsername(identifier);
+        if (user == null) {
+            user = userRepository.findByEmail(identifier);
+        }
+        return user;
     }
 
     public void createPasswordResetTokenForUser(User user, String appUrl) {

@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import com.bookStore.entity.MyBookList;
 import com.bookStore.repository.MyBookRepository;
+import com.bookStore.entity.User;
 
 @Service
 public class MyBookListService {
@@ -15,8 +16,12 @@ public class MyBookListService {
         mybook.save(book);
     }
     
-    public List<MyBookList> getAllMyBooks(){
-        return mybook.findAll();
+    public List<MyBookList> getAllMyBooks(User user){
+        return mybook.findByUser(user);
+    }
+    
+    public MyBookList findById(int id) {
+        return mybook.findById(id).orElse(null);
     }
     
     public void deleteById(int id) {
