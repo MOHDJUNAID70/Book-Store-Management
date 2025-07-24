@@ -4,7 +4,7 @@ FROM openjdk:17-jdk-slim
 # Set working directory
 WORKDIR /app
 
-# Copy Maven wrapper and pom.xml
+# Copy Maven wrapper and pom.xml first for better caching
 COPY mvnw .
 COPY .mvn .mvn
 COPY pom.xml .
@@ -12,7 +12,7 @@ COPY pom.xml .
 # Make Maven wrapper executable
 RUN chmod +x ./mvnw
 
-# Download dependencies
+# Download dependencies (this layer will be cached if pom.xml doesn't change)
 RUN ./mvnw dependency:go-offline -B
 
 # Copy source code
@@ -21,11 +21,11 @@ COPY src ./src
 # Build the application
 RUN ./mvnw clean package -DskipTests
 
-# Expose port
-EXPOSE 8080
+# Use dynamic port from environment
+EXPOSE ${PORT:-8080}
 
-# Set environment variable for Spring profile
+# Set Spring profile to production
 ENV SPRING_PROFILES_ACTIVE=prod
 
-# Run the application
-CMD ["java", "-jar", "target/bookstore-0.0.1-SNAPSHOT.jar"]
+# Run the application with dynamic JAR name
+CMD ["sh", "-c", "java -Dserver.port=${PORT:-8080} -jar target/*.jar"]
