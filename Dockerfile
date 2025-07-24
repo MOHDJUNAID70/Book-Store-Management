@@ -11,6 +11,6 @@ FROM eclipse-temurin:17-jdk-alpine
 WORKDIR /app
 COPY --from=build /app/target/*.jar app.jar
 RUN mkdir -p uploads
-EXPOSE 8080
+EXPOSE 8000
 ENV SPRING_PROFILES_ACTIVE=prod
-CMD ["java", "-Dserver.port=${PORT:-8080}", "-jar", "app.jar"]
+CMD ["java", "-Dserver.port=${PORT:-8000}", "-jar", "app.jar"]
